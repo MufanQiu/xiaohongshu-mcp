@@ -11,6 +11,7 @@ import (
 
 type browserConfig struct {
 	binPath string
+	site    string // 站点标识,决定加载哪份 cookies(空值为默认站点)
 }
 
 type Option func(*browserConfig)
@@ -18,6 +19,13 @@ type Option func(*browserConfig)
 func WithBinPath(binPath string) Option {
 	return func(c *browserConfig) {
 		c.binPath = binPath
+	}
+}
+
+// WithSite 指定站点(xiaohongshu / rednote),不同站点的 cookies 相互隔离。
+func WithSite(site string) Option {
+	return func(c *browserConfig) {
+		c.site = site
 	}
 }
 
@@ -54,8 +62,8 @@ func NewBrowser(headless bool, options ...Option) *headless_browser.Browser {
 		logrus.Infof("Using proxy: %s", maskProxyCredentials(proxy))
 	}
 
-	// 加载 cookies
-	cookiePath := cookies.GetCookiesFilePath()
+	// 加载 cookies(按站点隔离)
+	cookiePath := cookies.GetCookiesFilePathForSite(cfg.site)
 	cookieLoader := cookies.NewLoadCookie(cookiePath)
 
 	if data, err := cookieLoader.LoadCookies(); err == nil {

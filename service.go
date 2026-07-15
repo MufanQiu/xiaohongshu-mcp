@@ -95,7 +95,7 @@ type UserProfileResponse struct {
 
 // DeleteCookies 删除 cookies 文件，用于登录重置
 func (s *XiaohongshuService) DeleteCookies(ctx context.Context) error {
-	cookiePath := cookies.GetCookiesFilePath()
+	cookiePath := cookies.GetCookiesFilePathForSite(xiaohongshu.Site().Name)
 	cookieLoader := cookies.NewLoadCookie(cookiePath)
 	return cookieLoader.DeleteCookies()
 }
@@ -546,7 +546,7 @@ func (s *XiaohongshuService) ReplyCommentToFeed(ctx context.Context, feedID, xse
 }
 
 func newBrowser() *headless_browser.Browser {
-	return browser.NewBrowser(configs.IsHeadless(), browser.WithBinPath(configs.GetBinPath()))
+	return browser.NewBrowser(configs.IsHeadless(), browser.WithBinPath(configs.GetBinPath()), browser.WithSite(xiaohongshu.Site().Name))
 }
 
 func saveCookies(page *rod.Page) error {
@@ -560,7 +560,7 @@ func saveCookies(page *rod.Page) error {
 		return err
 	}
 
-	cookieLoader := cookies.NewLoadCookie(cookies.GetCookiesFilePath())
+	cookieLoader := cookies.NewLoadCookie(cookies.GetCookiesFilePathForSite(xiaohongshu.Site().Name))
 	return cookieLoader.SaveCookies(data)
 }
 

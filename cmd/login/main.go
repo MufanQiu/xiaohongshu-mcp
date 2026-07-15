@@ -15,12 +15,18 @@ import (
 func main() {
 	var (
 		binPath string // 浏览器二进制文件路径
+		site    string // 站点: xiaohongshu | rednote
 	)
 	flag.StringVar(&binPath, "bin", "", "浏览器二进制文件路径")
+	flag.StringVar(&site, "site", xiaohongshu.SiteXiaohongshu, "站点: xiaohongshu | rednote")
 	flag.Parse()
 
+	if err := xiaohongshu.SetSite(site); err != nil {
+		logrus.Fatalf("站点配置错误: %v", err)
+	}
+
 	// 登录的时候，需要界面，所以不能无头模式
-	b := browser.NewBrowser(false, browser.WithBinPath(binPath))
+	b := browser.NewBrowser(false, browser.WithBinPath(binPath), browser.WithSite(site))
 	defer b.Close()
 
 	page := b.NewPage()
@@ -74,6 +80,6 @@ func saveCookies(page *rod.Page) error {
 		return err
 	}
 
-	cookieLoader := cookies.NewLoadCookie(cookies.GetCookiesFilePath())
+	cookieLoader := cookies.NewLoadCookie(cookies.GetCookiesFilePathForSite(xiaohongshu.Site().Name))
 	return cookieLoader.SaveCookies(data)
 }

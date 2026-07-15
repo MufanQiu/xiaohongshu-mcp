@@ -110,7 +110,7 @@ func (s *AppServer) handleDeleteCookies(ctx context.Context) *MCPToolResult {
 		}
 	}
 
-	cookiePath := cookies.GetCookiesFilePath()
+	cookiePath := cookies.GetCookiesFilePathForSite(xiaohongshu.Site().Name)
 	resultText := fmt.Sprintf("Cookies 已成功删除，登录状态已重置。\n\n删除的文件路径: %s\n\n下次操作时，需要重新登录。", cookiePath)
 	return &MCPToolResult{
 		Content: []MCPContent{{
