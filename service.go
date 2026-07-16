@@ -442,6 +442,36 @@ func (s *XiaohongshuService) UserProfile(ctx context.Context, userID, xsecToken 
 	}
 
 	return response, nil
+}
+
+// MySavedFeeds 获取当前登录账号收藏的笔记列表(自己主页「收藏」tab 当前页)
+func (s *XiaohongshuService) MySavedFeeds(ctx context.Context) (*UserProfileResponse, error) {
+	return s.myTabFeeds(ctx, xiaohongshu.MyTabSaved)
+}
+
+// MyLikedFeeds 获取当前登录账号点赞过的笔记列表(自己主页「点赞」tab 当前页)
+func (s *XiaohongshuService) MyLikedFeeds(ctx context.Context) (*UserProfileResponse, error) {
+	return s.myTabFeeds(ctx, xiaohongshu.MyTabLiked)
+}
+
+func (s *XiaohongshuService) myTabFeeds(ctx context.Context, tab int) (*UserProfileResponse, error) {
+	b := newBrowser()
+	defer b.Close()
+
+	page := b.NewPage()
+	defer page.Close()
+
+	action := xiaohongshu.NewUserProfileAction(page)
+
+	result, err := action.GetMyTabFeeds(ctx, tab)
+	if err != nil {
+		return nil, err
+	}
+	return &UserProfileResponse{
+		UserBasicInfo: result.UserBasicInfo,
+		Interactions:  result.Interactions,
+		Feeds:         result.Feeds,
+	}, nil
 
 }
 

@@ -475,6 +475,41 @@ func (s *AppServer) handleGetFeedDetail(ctx context.Context, args map[string]any
 	}
 }
 
+// handleMyTabFeeds 获取自己的收藏/点赞列表。kind 为"收藏"或"点赞",用于日志与报错文案。
+func (s *AppServer) handleMyTabFeeds(ctx context.Context, kind string,
+	fetch func(context.Context) (*UserProfileResponse, error)) *MCPToolResult {
+	logrus.Infof("MCP: 获取我的%s列表", kind)
+
+	result, err := fetch(ctx)
+	if err != nil {
+		return &MCPToolResult{
+			Content: []MCPContent{{
+				Type: "text",
+				Text: fmt.Sprintf("获取我的%s列表失败: %s", kind, err.Error()),
+			}},
+			IsError: true,
+		}
+	}
+
+	jsonData, err := json.MarshalIndent(result, "", "  ")
+	if err != nil {
+		return &MCPToolResult{
+			Content: []MCPContent{{
+				Type: "text",
+				Text: fmt.Sprintf("获取我的%s列表成功，但序列化失败: %v", kind, err),
+			}},
+			IsError: true,
+		}
+	}
+
+	return &MCPToolResult{
+		Content: []MCPContent{{
+			Type: "text",
+			Text: string(jsonData),
+		}},
+	}
+}
+
 // handleUserProfile 获取用户主页
 func (s *AppServer) handleUserProfile(ctx context.Context, args map[string]any) *MCPToolResult {
 	logrus.Info("MCP: 获取用户主页")

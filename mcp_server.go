@@ -325,6 +325,38 @@ func registerTools(server *mcp.Server, appServer *AppServer) {
 		}),
 	)
 
+	// 工具 8.1: 我的收藏列表
+	mcp.AddTool(server,
+		&mcp.Tool{
+			Name:        "get_my_favorites",
+			Description: "获取当前登录账号收藏的笔记列表（自己主页「收藏」tab 当前页，含 xsecToken 可继续查详情）",
+			Annotations: &mcp.ToolAnnotations{
+				Title:        "My Favorites",
+				ReadOnlyHint: true,
+			},
+		},
+		withPanicRecovery("get_my_favorites", func(ctx context.Context, req *mcp.CallToolRequest, _ any) (*mcp.CallToolResult, any, error) {
+			result := appServer.handleMyTabFeeds(ctx, "收藏", appServer.xiaohongshuService.MySavedFeeds)
+			return convertToMCPResult(result), nil, nil
+		}),
+	)
+
+	// 工具 8.2: 我的点赞列表
+	mcp.AddTool(server,
+		&mcp.Tool{
+			Name:        "get_my_likes",
+			Description: "获取当前登录账号点赞过的笔记列表（自己主页「点赞」tab 当前页，含 xsecToken 可继续查详情）",
+			Annotations: &mcp.ToolAnnotations{
+				Title:        "My Likes",
+				ReadOnlyHint: true,
+			},
+		},
+		withPanicRecovery("get_my_likes", func(ctx context.Context, req *mcp.CallToolRequest, _ any) (*mcp.CallToolResult, any, error) {
+			result := appServer.handleMyTabFeeds(ctx, "点赞", appServer.xiaohongshuService.MyLikedFeeds)
+			return convertToMCPResult(result), nil, nil
+		}),
+	)
+
 	// 工具 9: 发表评论
 	mcp.AddTool(server,
 		&mcp.Tool{
